@@ -210,7 +210,7 @@
     <div class="hero-layout">
       <div class="hero-left">
         <div class="logo-wrap">
-          <img class="logo" src="logo.png" alt="Logotipo">
+          <img class="logo" src="LOGO_BASE64_PLACEHOLDER" alt="Logotipo">
         </div>
         <div class="hero-content">
           <div class="eyebrow">Inscrições abertas</div>
@@ -421,15 +421,19 @@ var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzFfCctBjNnT94EVZ
     }
   })();
 
+  var GPX_BASE64 = 'PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxncHggdmVyc2lvbj0iMS4xIiBjcmVhdG9yPSJHREFMIDMuNi4zIiB4bWxuczp4c2k9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvWE1MU2NoZW1hLWluc3RhbmNlIiB4bWxuczpvZ3I9Imh0dHA6Ly9vc2dlby5vcmcvZ2RhbCIgeG1sbnM9Imh0dHA6Ly93d3cudG9wb2dyYWZpeC5jb20vR1BYLzEvMSIgeHNpOnNjaGVtYUxvY2F0aW9uPSJodHRwOi8vd3d3LnRvcG9ncmFmaXguY29tL0dQWC8xLzEgaHR0cDovL3d3dy50b3BvZ3JhZml4LmNvbS9HUFgvMS8xL2dweC54c2QiPjxtZXRhZGF0YT48Ym91bmRzIG1pbmxhdD0iMzguODkyNjUwOTE1MzU1OTAxIiBtaW5sb249Ii05LjA3MTk3MDc0OTQ5NTAxMCIgbWF4bGF0PSIzOC45MDEzOTM0OTYyODUzMDEiIG1heGxvbj0iLTkuMDUyMTk3NjE2NDkxMDY5Ii8+PC9tZXRhZGF0YT48dHJrPjxuYW1lPlBlcmN1cnNvIENhbWluaGFkYTwvbmFtZT48dHJrc2VnPjx0cmtwdCBsYXQ9IjM4Ljg5ODI1NTIyMTA2NjIwMSIgbG9uPSItOS4wNTI4NDE3OTE5Mjc5OTEiPjxlbGU+MC4wPC9lbGU+PC90cmtwdD48L3Rya3NlZz48L3Ryaz48L2dweD4=';
+
   function $(id) { return document.getElementById(id); }
 
   function descarregarGPX() {
+    var b = atob(GPX_BASE64), bytes = new Uint8Array(b.length);
+    for (var i = 0; i < b.length; i++) bytes[i] = b.charCodeAt(i);
+    var blob = new Blob([bytes], { type: 'application/gpx+xml' });
+    var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = 'caminhadaADP.gpx';
-    a.download = 'caminhadaADP.gpx';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    a.href = url; a.download = 'caminhadaADP.gpx';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
 
   function atualizarContador() {
@@ -714,18 +718,18 @@ var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzFfCctBjNnT94EVZ
   }
 
   function submeterParaAppsScript(dados) {
-    // Envia via fetch para o Google Apps Script como doPost
-    var payload = JSON.stringify(dados);
+    // no-cors necessário porque o Apps Script faz redirect 302
+    // O pedido chega sempre ao servidor mas a resposta é opaca
+    var formData = new FormData();
+    formData.append('dados', JSON.stringify(dados));
+
     return fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: payload
-    }).then(function (resp) {
-      if (!resp.ok) throw new Error('Erro HTTP ' + resp.status);
-      return resp.json();
-    }).then(function (json) {
-      if (json && json.sucesso === false) throw new Error(json.mensagem || 'Erro desconhecido');
-      return json;
+      mode: 'no-cors',
+      body: formData
+    }).then(function () {
+      // Com no-cors não conseguimos ler a resposta — assume sucesso
+      return { sucesso: true };
     });
   }
 

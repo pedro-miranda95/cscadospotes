@@ -41,21 +41,6 @@
     }
     .page { width: 100%; max-width: 860px; margin: 0 auto; }
 
-    /* AVISO IN-APP BROWSER */
-    .inapp-banner {
-      display: none;
-      background: #fff3cd;
-      border: 2px solid #f59e0b;
-      border-radius: 18px;
-      padding: 20px 18px;
-      margin-bottom: 18px;
-      text-align: center;
-    }
-    .inapp-banner.visible { display: block; }
-    .inapp-banner h2 { margin: 0 0 10px; font-size: 17px; color: #92400e; }
-    .inapp-banner p { margin: 0; font-size: 14px; color: #78350f; line-height: 1.5; }
-    .inapp-banner .inapp-icon { font-size: 32px; margin-bottom: 8px; }
-
     .hero {
       background: rgba(255,255,255,.92);
       border-radius: 32px;
@@ -195,11 +180,17 @@
 <body>
 <div class="page">
 
-  <!-- AVISO IN-APP BROWSER -->
-  <div class="inapp-banner" id="inappBanner">
-    <div class="inapp-icon">⚠️</div>
-    <h2>Para melhor experiência</h2>
-    <p>Abre este link no <strong>Chrome</strong> ou <strong>Safari</strong> para garantir que o formulário funciona corretamente.</p>
+  <!-- Modal aviso GPX in-app browser -->
+  <div id="gpxModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,.6); z-index:999; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#fff; border-radius:22px; padding:24px; max-width:360px; width:100%; box-shadow:0 24px 60px rgba(0,0,0,.28); text-align:center;">
+      <div style="font-size:36px; margin-bottom:12px;">📥</div>
+      <h3 style="margin:0 0 10px; font-size:18px; color:#0f172a;">Abre no browser para descarregar</h3>
+      <p style="margin:0 0 20px; font-size:14px; color:#64748b; line-height:1.5;">
+        O browser do Facebook/Instagram não permite descarregar ficheiros.<br><br>
+        Abre este link no <strong>Chrome</strong> ou <strong>Safari</strong> e tenta novamente.
+      </p>
+      <button onclick="document.getElementById('gpxModal').style.display='none'" style="width:100%; min-height:46px; border:none; border-radius:14px; background:#111827; color:#fff; font-size:15px; font-weight:900; cursor:pointer;">Fechar</button>
+    </div>
   </div>
 
   <div class="hero">
@@ -228,7 +219,7 @@
   </div>
 
   <form id="formInscricao">
-    <a href="caminhadaADP.gpx" download="caminhadaADP.gpx" class="gpx-inline-button">
+    <a href="caminhadaADP.gpx" download="caminhadaADP.gpx" class="gpx-inline-button" id="gpxLink">
       <div class="gpx-inline-left">
         <div class="gpx-inline-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -408,16 +399,8 @@ var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzFfCctBjNnT94EVZ
   var hoje = new Date().toISOString().split('T')[0];
   var countdownTimer = null;
 
-  // Detetar in-app browser
-  (function detectInApp() {
-    var ua = navigator.userAgent || '';
-    var isInApp = /FBAN|FBAV|Instagram|FB_IAB|FB4A|FBIOS|LinkedInApp|Twitter|Snapchat/i.test(ua);
-    if (isInApp) {
-      document.getElementById('inappBanner').classList.add('visible');
-    }
-  })();
-
-  var GPX_BASE64 = 'PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxncHggdmVyc2lvbj0iMS4xIiBjcmVhdG9yPSJHREFMIDMuNi4zIiB4bWxuczp4c2k9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvWE1MU2NoZW1hLWluc3RhbmNlIiB4bWxuczpvZ3I9Imh0dHA6Ly9vc2dlby5vcmcvZ2RhbCIgeG1sbnM9Imh0dHA6Ly93d3cudG9wb2dyYWZpeC5jb20vR1BYLzEvMSIgeHNpOnNjaGVtYUxvY2F0aW9uPSJodHRwOi8vd3d3LnRvcG9ncmFmaXguY29tL0dQWC8xLzEgaHR0cDovL3d3dy50b3BvZ3JhZml4LmNvbS9HUFgvMS8xL2dweC54c2QiPjxtZXRhZGF0YT48Ym91bmRzIG1pbmxhdD0iMzguODkyNjUwOTE1MzU1OTAxIiBtaW5sb249Ii05LjA3MTk3MDc0OTQ5NTAxMCIgbWF4bGF0PSIzOC45MDEzOTM0OTYyODUzMDEiIG1heGxvbj0iLTkuMDUyMTk3NjE2NDkxMDY5Ii8+PC9tZXRhZGF0YT48dHJrPjxuYW1lPlBlcmN1cnNvIENhbWluaGFkYTwvbmFtZT48dHJrc2VnPjx0cmtwdCBsYXQ9IjM4Ljg5ODI1NTIyMTA2NjIwMSIgbG9uPSItOS4wNTI4NDE3OTE5Mjc5OTEiPjxlbGU+MC4wPC9lbGU+PC90cmtwdD48L3Rya3NlZz48L3Ryaz48L2dweD4=';
+  // Detetar in-app browser — só afeta o botão GPX
+  var isInAppBrowser = /FBAN|FBAV|Instagram|FB_IAB|FB4A|FBIOS|LinkedInApp|Twitter|Snapchat/i.test(navigator.userAgent || '');
 
   function $(id) { return document.getElementById(id); }
 
@@ -758,6 +741,16 @@ var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzFfCctBjNnT94EVZ
 
   function init() {
     $('dataNascimento').max = hoje;
+
+    // GPX — se in-app browser, interceta o clique e mostra modal
+    var gpxLink = $('gpxLink');
+    if (gpxLink && isInAppBrowser) {
+      gpxLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        var modal = $('gpxModal');
+        modal.style.display = 'flex';
+      });
+    }
     $('dataNascimento').addEventListener('change', atualizarPrincipalPorData);
     $('tipoInscricao').addEventListener('change', function () { atualizarMenuPrincipal(); calcularTotal(); });
     $('numeroAcompanhantes').addEventListener('change', gerarAcompanhantes);

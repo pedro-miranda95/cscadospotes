@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Inscrição - Caminhada e Sardinhada</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --primary: #0f4c81;
+      --primary-dark: #0b3860;
+      --accent: #e8b447;
+      --border: #e5e7eb;
+      --success: #10b981;
+      --warning-bg: #fff7ed;
+      --warning-border: #fb923c;
+      --warning-text: #9a3412;
+      --info-bg: #ecfeff;
+      --info-border: #06b6d4;
+      --info-text: #0f766e;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(232,180,71,.22), transparent 34%),
+        linear-gradient(180deg, #eef4fb 0%, #f7fafc 45%, #ffffff 100%);
+      color: var(--text);
+      padding: 14px;
+    }
+    .page { width: 100%; max-width: 860px; margin: 0 auto; }
+
+    /* AVISO IN-APP BROWSER */
+    .inapp-banner {
+      display: none;
+      background: #fff3cd;
+      border: 2px solid #f59e0b;
+      border-radius: 18px;
+      padding: 20px 18px;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    .inapp-banner.visible { display: block; }
+    .inapp-banner h2 { margin: 0 0 10px; font-size: 17px; color: #92400e; }
+    .inapp-banner p { margin: 0; font-size: 14px; color: #78350f; line-height: 1.5; }
+    .inapp-banner .inapp-icon { font-size: 32px; margin-bottom: 8px; }
+
+    .hero {
+      background: rgba(255,255,255,.92);
+      border-radius: 32px;
+      padding: 34px;
+      box-shadow: 0 20px 50px rgba(15,23,42,.06), 0 2px 12px rgba(15,23,42,.04);
+      border: 1px solid rgba(226,232,240,.9);
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 34px; right: 34px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(16,185,129,.9), transparent);
+    }
+    .hero-layout { display: flex; align-items: center; justify-content: space-between; gap: 26px; position: relative; z-index: 1; }
+    .hero-left { display: flex; align-items: center; gap: 18px; min-width: 0; }
+    .logo-wrap { width: 82px; height: 82px; border-radius: 24px; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #eef2f7; box-shadow: 0 10px 24px rgba(15,23,42,.05), inset 0 1px 0 rgba(255,255,255,.9); flex: 0 0 auto; }
+    .logo { width: 62px; height: 62px; object-fit: contain; }
+    .hero-content { min-width: 0; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; background: rgba(16,185,129,.08); color: #047857; border: 1px solid rgba(16,185,129,.12); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 10px; }
+    h1 { margin: 0; font-size: 42px; line-height: .95; letter-spacing: -2px; color: #0f172a; font-weight: 900; }
+    .subtitle { margin-top: 10px; color: #64748b; font-size: 15px; line-height: 1.5; max-width: 520px; }
+    .hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex: 0 0 auto; }
+    .event-date { display: inline-flex; align-items: center; justify-content: center; min-width: 120px; padding: 12px 18px; border-radius: 18px; background: linear-gradient(135deg, #059669, #10b981); color: #fff; font-size: 14px; font-weight: 900; box-shadow: 0 12px 22px rgba(16,185,129,.18); }
+    .event-pill { display: inline-flex; align-items: center; justify-content: center; padding: 10px 14px; border-radius: 999px; background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; font-size: 13px; font-weight: 800; }
+    .countdown-card { margin-top: 12px; display: grid; grid-template-columns: repeat(4, minmax(58px, 1fr)); gap: 8px; padding: 10px; border-radius: 20px; background: rgba(255,255,255,.78); border: 1px solid rgba(226,232,240,.92); box-shadow: 0 10px 24px rgba(15,23,42,.05); backdrop-filter: blur(10px); }
+    .countdown-item { text-align: center; padding: 9px 8px; border-radius: 15px; background: #f8fafc; border: 1px solid #eef2f7; }
+    .countdown-number { display: block; color: #047857; font-size: 20px; line-height: 1; font-weight: 950; letter-spacing: -0.5px; }
+    .countdown-label { display: block; margin-top: 5px; color: #64748b; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+
+    .gpx-inline-button { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 0 22px; padding: 17px; border-radius: 20px; border: 1px solid rgba(16,185,129,.32); background: linear-gradient(135deg, #ecfdf5, #ffffff); color: #0f172a; box-shadow: 0 12px 26px rgba(16,185,129,.10); cursor: pointer; font: inherit; text-align: left; }
+    .gpx-inline-left { display: flex; align-items: center; gap: 13px; min-width: 0; }
+    .gpx-inline-icon { width: 46px; height: 46px; border-radius: 15px; background: #059669; color: #fff; display: grid; place-items: center; flex: 0 0 auto; }
+    .gpx-inline-icon svg { width: 24px; height: 24px; }
+    .gpx-inline-title { font-weight: 950; font-size: 16px; line-height: 1.2; }
+    .gpx-inline-subtitle { margin-top: 4px; color: #64748b; font-size: 13px; line-height: 1.35; }
+    .gpx-inline-action { flex: 0 0 auto; color: #047857; background: #d1fae5; border-radius: 999px; padding: 9px 13px; font-size: 13px; font-weight: 950; white-space: nowrap; }
+
+    form { background: var(--card); border-radius: 28px; padding: 24px; box-shadow: 0 18px 45px rgba(15,23,42,.08); border: 1px solid var(--border); }
+    .section { margin-top: 28px; }
+    .section:first-child { margin-top: 0; }
+    h2 { font-size: 20px; margin: 0 0 15px; letter-spacing: -0.25px; color: #0f172a; }
+    label { display: block; margin: 15px 0 7px; font-weight: 800; font-size: 14px; color: #1f2937; }
+    input, select, textarea { width: 100%; max-width: 100%; min-height: 50px; border: 1px solid #d1d5db; border-radius: 15px; background: #fff; color: var(--text); padding: 12px 13px; font-size: 16px; font-family: inherit; outline: none; -webkit-appearance: none; appearance: none; }
+    input[type="date"] { min-height: 54px; line-height: normal; padding-top: 12px; padding-bottom: 12px; }
+    select { background-image: linear-gradient(45deg, transparent 50%, #6b7280 50%), linear-gradient(135deg, #6b7280 50%, transparent 50%); background-position: calc(100% - 20px) 23px, calc(100% - 14px) 23px; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 40px; }
+    textarea { min-height: 96px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(15,76,129,.11); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+    .hidden { display: none !important; }
+    .disabled-card { background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 16px; padding: 14px; color: var(--muted); font-size: 14px; margin-top: 12px; line-height: 1.45; }
+    .companion-card { background: #f9fafb; border: 1px solid var(--border); border-radius: 21px; padding: 17px; margin-top: 14px; }
+    .companion-title { font-weight: 900; font-size: 16px; margin: 0 0 8px; color: var(--primary); }
+
+    .total-card { margin: 28px 0 8px; background: radial-gradient(circle at top right, rgba(16,185,129,.18), transparent 34%), linear-gradient(135deg, #ffffff 0%, #f7fdf9 55%, #eefcf3 100%); color: #0f172a; padding: 24px; border-radius: 28px; box-shadow: 0 20px 40px rgba(15,23,42,.08), 0 2px 10px rgba(16,185,129,.10); border: 1px solid rgba(16,185,129,.12); position: relative; overflow: hidden; }
+    .total-inner { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .total-copy { text-align: left; min-width: 0; }
+    .total-label { font-size: 13px; opacity: .72; color: #334155; font-weight: 950; text-transform: uppercase; letter-spacing: .09em; }
+    .total-help { margin-top: 8px; font-size: 13px; line-height: 1.35; color: #64748b; }
+    .total-value { flex: 0 0 auto; min-width: 128px; text-align: center; background: linear-gradient(135deg, #059669, #10b981); border: 1px solid rgba(16,185,129,.28); border-radius: 22px; padding: 15px 18px; font-size: 46px; font-weight: 950; line-height: 1; color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.24), 0 12px 24px rgba(16,185,129,.24); }
+
+    .payment-panel { display: none; margin-top: 14px; border: 1px solid var(--border); background: #f9fafb; border-radius: 20px; padding: 15px; }
+    .payment-title { font-weight: 950; margin-bottom: 12px; color: #0f172a; }
+    .copy-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border: 1px solid #dbe2ea; border-radius: 17px; padding: 12px; margin-top: 10px; }
+    .copy-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .mbway-logo { width: 48px; height: 33px; object-fit: contain; flex: 0 0 auto; border-radius: 7px; background: #fff; }
+    .copy-text { min-width: 0; word-break: break-word; line-height: 1.35; }
+    .copy-label { font-size: 12px; color: var(--muted); font-weight: 900; text-transform: uppercase; letter-spacing: .06em; }
+    .copy-value { font-size: 16px; font-weight: 900; margin-top: 2px; }
+    .copy-btn { flex: 0 0 auto; width: 44px; height: 44px; border: none; border-radius: 14px; background: #111827; color: #fff; cursor: pointer; display: grid; place-items: center; }
+    .copy-btn svg { width: 22px; height: 22px; }
+    .copy-action { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+    .copy-feedback { font-size: 12px; font-weight: 800; color: #059669; opacity: 0; transform: translateX(4px); transition: opacity .18s ease, transform .18s ease; white-space: nowrap; }
+    .copy-feedback.show { opacity: 1; transform: translateX(0); }
+    .upload-help { color: #64748b; font-size: 13px; line-height: 1.4; margin-top: 7px; }
+    .presence-alert { display: none; background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning-text); padding: 14px; border-radius: 16px; margin-top: 14px; font-size: 14px; line-height: 1.5; font-weight: 600; }
+    .btn-submit { width: 100%; border: none; border-radius: 18px; min-height: 56px; background: var(--primary); color: #fff; font-size: 17px; font-weight: 950; margin-top: 23px; cursor: pointer; box-shadow: 0 12px 24px rgba(15,76,129,.23); }
+    .btn-submit:hover { background: var(--primary-dark); }
+    .btn-submit:disabled { background: #9ca3af; cursor: wait; box-shadow: none; }
+    .input-help { margin-top: 6px; margin-bottom: 2px; color: #64748b; font-size: 12px; font-weight: 600; }
+    .soft-contact { margin-top: 18px; padding: 13px 14px; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; font-size: 13px; line-height: 1.45; text-align: center; }
+    .soft-contact strong { color: #334155; font-weight: 850; }
+
+    .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #111827; color: white; padding: 10px 14px; border-radius: 999px; font-size: 14px; display: none; z-index: 50; }
+    .modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(15,23,42,0.62); z-index: 40; }
+    .modal { width: 100%; max-width: 560px; max-height: 88vh; overflow: auto; background: #fff; border-radius: 24px; padding: 22px; box-shadow: 0 24px 60px rgba(0,0,0,.28); }
+    .modal h3 { margin: 0 0 8px; font-size: 22px; }
+    .modal-summary { background: #f9fafb; border: 1px solid var(--border); border-radius: 16px; padding: 14px; margin-top: 14px; line-height: 1.5; font-size: 14px; }
+    .success-icon { width: 74px; height: 74px; border-radius: 999px; background: linear-gradient(135deg, #059669, #10b981); color: #fff; display: grid; place-items: center; margin: 0 auto 14px; box-shadow: 0 16px 30px rgba(16,185,129,.24); }
+    .success-icon.pending { background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 16px 30px rgba(245,158,11,.24); }
+    .success-icon svg { width: 42px; height: 42px; }
+    .modal-success-title { text-align: center; color: #065f46; margin-bottom: 6px !important; }
+    .modal-success-text { text-align: center; color: #475569; margin-top: 0; }
+    .modal button { width: 100%; margin-top: 16px; min-height: 48px; border: none; border-radius: 14px; background: #111827; color: #fff; font-weight: 900; font-size: 15px; cursor: pointer; }
+    .loading-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(248,250,252,.82); backdrop-filter: blur(8px); z-index: 60; padding: 20px; }
+    .loading-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 22px; padding: 24px; width: min(320px, 100%); text-align: center; box-shadow: 0 22px 50px rgba(15,23,42,.14); }
+    .loader { width: 44px; height: 44px; border: 4px solid #d1fae5; border-top-color: #10b981; border-radius: 999px; margin: 0 auto 14px; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title { font-weight: 900; color: #0f172a; margin-bottom: 5px; }
+    .loading-subtitle { color: #64748b; font-size: 14px; line-height: 1.4; }
+    .note-kids { background: var(--info-bg); border: 1px solid var(--info-border); color: var(--info-text); padding: 13px 14px; border-radius: 16px; font-size: 14px; font-weight: 800; margin-bottom: 18px; line-height: 1.4; }
+
+    @media (max-width: 640px) {
+      body { padding: 8px; background: #f4f7fb; }
+      .page { max-width: 100%; }
+      .hero { border-radius: 24px; padding: 22px 18px; }
+      .hero-layout { display: block; }
+      .hero-left { display: block; text-align: center; }
+      .logo-wrap { width: 82px; height: 82px; margin: 0 auto 16px; }
+      h1 { font-size: 32px; line-height: .95; letter-spacing: -1.4px; }
+      .subtitle { font-size: 14px; margin: 12px auto 0; }
+      .hero-right { margin-top: 18px; align-items: center; }
+      .event-date { width: 100%; }
+      .event-pill { width: 100%; }
+      .countdown-card { grid-template-columns: repeat(4, 1fr); width: 100%; margin-top: 12px; }
+      .countdown-number { font-size: 18px; }
+      .countdown-label { font-size: 9px; }
+      .gpx-inline-button { align-items: flex-start; padding: 15px; }
+      .gpx-inline-action { display: none; }
+      form { border-radius: 22px; padding: 16px; }
+      .grid { grid-template-columns: 1fr; gap: 0; }
+      h2 { font-size: 18px; }
+      label { margin-top: 14px; }
+      input, select, textarea { font-size: 16px; min-height: 54px; }
+      input[type="date"] { min-height: 58px; }
+      .total-card { border-radius: 22px; padding: 21px 16px; }
+      .total-inner { display: block; }
+      .total-copy { text-align: center; }
+      .total-value { display: block; width: 100%; margin-top: 15px; font-size: 40px; }
+      .copy-value { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- AVISO IN-APP BROWSER -->
+  <div class="inapp-banner" id="inappBanner">
+    <div class="inapp-icon">⚠️</div>
+    <h2>Abre no browser para continuar</h2>
+    <p>
+      Este formulário não funciona no browser do Facebook/Instagram.<br><br>
+      Clica nos <strong>⋯</strong> ou nos <strong>3 pontos</strong> no canto superior<br>
+      e escolhe <strong>"Abrir no browser"</strong> (Chrome, Safari, etc.).
+    </p>
+  </div>
+
+  <div class="hero">
+    <div class="hero-layout">
+      <div class="hero-left">
+        <div class="logo-wrap">
+          <img class="logo" src="logo.png" alt="Logotipo">
+        </div>
+        <div class="hero-content">
+          <div class="eyebrow">Inscrições abertas</div>
+          <h1>Caminhada<br>&amp; Sardinhada</h1>
+          <div class="subtitle">Centro Social e Cultural do Povo de Á-dos-Potes</div>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="event-date">21/06/2026</div>
+        <div class="event-pill">Caminhada 09h00 · Almoço 12h30</div>
+        <div class="countdown-card">
+          <div class="countdown-item"><span id="countDias" class="countdown-number">--</span><span class="countdown-label">dias</span></div>
+          <div class="countdown-item"><span id="countHoras" class="countdown-number">--</span><span class="countdown-label">horas</span></div>
+          <div class="countdown-item"><span id="countMinutos" class="countdown-number">--</span><span class="countdown-label">min</span></div>
+          <div class="countdown-item"><span id="countSegundos" class="countdown-number">--</span><span class="countdown-label">seg</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form id="formInscricao">
+    <button type="button" id="btnDownloadGpx" class="gpx-inline-button">
+      <div class="gpx-inline-left">
+        <div class="gpx-inline-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M5 21h14"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="gpx-inline-title">Descarregar percurso GPX</div>
+          <div class="gpx-inline-subtitle">Para usar no telemóvel, relógio GPS ou app de navegação.</div>
+        </div>
+      </div>
+      <div class="gpx-inline-action">Download</div>
+    </button>
+
+    <div class="section">
+      <h2>Dados do inscrito</h2>
+      <label for="nome">Nome completo</label>
+      <input id="nome" type="text" required>
+      <label for="telefone">Contacto telefónico</label>
+      <input id="telefone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="Ex: 912345678" pattern="^(9[1236])[0-9]{7}$" maxlength="9" required>
+      <div class="input-help">Introduza um contacto válido com 9 dígitos.</div>
+      <label for="email">Email <span style="color:#64748b;font-weight:700;">(opcional)</span></label>
+      <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="exemplo@email.com">
+      <div class="grid">
+        <div>
+          <label for="dataNascimento">Data de nascimento</label>
+          <input id="dataNascimento" type="date" required>
+        </div>
+        <div>
+          <label for="tipoInscricao">Tipo de inscrição</label>
+          <select id="tipoInscricao" required>
+            <option value="">Selecionar</option>
+            <option value="Caminhada - 3€">Caminhada - 3€</option>
+            <option value="Caminhada + almoço para Sócios - 13€">Caminhada + almoço para Sócios - 13€</option>
+            <option value="Caminhada + almoço para Não Sócios - 15€">Caminhada + almoço para Não Sócios - 15€</option>
+          </select>
+        </div>
+      </div>
+      <div id="menuPrincipal">
+        <div class="grid">
+          <div>
+            <label for="comida">O que pretende comer?</label>
+            <select id="comida">
+              <option value="">Selecionar</option>
+              <option value="Sardinhas">Sardinhas</option>
+              <option value="Carne">Carne</option>
+            </select>
+          </div>
+          <div>
+            <label for="bebida">O que pretende beber?</label>
+            <select id="bebida">
+              <option value="">Selecionar</option>
+              <option value="Cerveja">Cerveja</option>
+              <option value="Vinho Tinto">Vinho Tinto</option>
+              <option value="Vinho Branco">Vinho Branco</option>
+              <option value="Sumo">Sumo</option>
+              <option value="Água">Água</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="semMenuPrincipal" class="disabled-card hidden">
+        Para a opção <strong>Caminhada - 3€</strong>, não é necessário selecionar comida nem bebida.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Acompanhantes</h2>
+      <label for="numeroAcompanhantes">Número de acompanhantes</label>
+      <select id="numeroAcompanhantes">
+        <option value="0">0</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+      <div id="acompanhantesContainer"></div>
+    </div>
+
+    <div class="total-card">
+      <div class="total-inner">
+        <div class="total-copy">
+          <div class="total-label">Valor total a pagar</div>
+          <div class="total-help">Crianças até aos 10 anos pagam apenas a caminhada (3€). O almoço é gratuito desde que acompanhadas por um adulto.</div>
+        </div>
+        <div id="valorTotal" class="total-value">0€</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Pagamento</h2>
+      <label for="metodoPagamento">Método de inscrição / pagamento</label>
+      <select id="metodoPagamento" required>
+        <option value="">Selecionar</option>
+        <option value="Online - MB WAY">Online - MB WAY</option>
+        <option value="Online - IBAN">Online - IBAN</option>
+        <option value="Presencial no Centro">Presencial no Centro</option>
+      </select>
+      <div id="paymentPanel" class="payment-panel">
+        <div class="payment-title">Dados para Pagamento</div>
+        <div id="mbwayRow" class="copy-row">
+          <div class="copy-left">
+            <div class="copy-text">
+              <div class="copy-label">MB WAY</div>
+              <div class="copy-value">967 750 440</div>
+            </div>
+          </div>
+          <div class="copy-action">
+            <button class="copy-btn" type="button" aria-label="Copiar MB WAY" data-copy="967750440" data-feedback="feedbackMbway">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </button>
+            <span id="feedbackMbway" class="copy-feedback">Copiado</span>
+          </div>
+        </div>
+        <div id="ibanRow" class="copy-row">
+          <div class="copy-left">
+            <div class="copy-text">
+              <div class="copy-label">IBAN</div>
+              <div class="copy-value">PT50 0035 0083 0000 3748 4315 9</div>
+            </div>
+          </div>
+          <div class="copy-action">
+            <button class="copy-btn" type="button" aria-label="Copiar IBAN" data-copy="PT50003500830000374843159" data-feedback="feedbackIban">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </button>
+            <span id="feedbackIban" class="copy-feedback">Copiado</span>
+          </div>
+        </div>
+      </div>
+      <div id="presencialAlert" class="presence-alert">
+        <strong>Atenção:</strong><br>
+        A inscrição com método presencial só é válida com o pagamento no Centro até 13 de junho de 2026. Após essa data, a inscrição não será considerada.
+      </div>
+      <label for="comprovativo">Comprovativo de pagamento</label>
+      <input id="comprovativo" type="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.webp">
+      <div id="uploadHelp" class="upload-help">Para pagamentos online, anexe o comprovativo.</div>
+    </div>
+
+    <div class="soft-contact">
+      Dúvidas? Contacte o Centro através do <strong>967 750 440</strong>.
+    </div>
+    <button id="btnSubmit" class="btn-submit" type="submit">Submeter inscrição</button>
+  </form>
+</div>
+
+<div id="toast" class="toast">Copiado</div>
+<div id="modalBackdrop" class="modal-backdrop">
+  <div class="modal">
+    <div id="modalIcon" class="success-icon">
+      <svg id="successSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+      <svg id="pendingSvg" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+    </div>
+    <h3 id="modalTitle" class="modal-success-title">Inscrição efetuada com sucesso</h3>
+    <p id="modalText" class="modal-success-text">A sua inscrição foi registada.</p>
+    <div id="modalSummary" class="modal-summary"></div>
+    <button type="button" id="closeModal">Fechar</button>
+  </div>
+</div>
+<div id="loadingBackdrop" class="loading-backdrop">
+  <div class="loading-card">
+    <div class="loader"></div>
+    <div class="loading-title">A submeter inscrição</div>
+    <div class="loading-subtitle">Estamos a guardar os dados e a enviar o comprovativo.</div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURAÇÃO — substitui pelo URL do teu Apps Script
+// ============================================================
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxjCBUYW5MLY4u4iSB2L7ioxcLDiSxUcEYvxOS1mS5PhmonTXDJMOyUGM8DSrDyokIE/exec';
+// ============================================================
+
+(function () {
+  var DATA_EVENTO = new Date('2026-06-21T09:00:00');
+  var hoje = new Date().toISOString().split('T')[0];
+  var countdownTimer = null;
+
+  // Detetar in-app browser
+  (function detectInApp() {
+    var ua = navigator.userAgent || '';
+    var isInApp = /FBAN|FBAV|Instagram|FB_IAB|FB4A|FBIOS|LinkedInApp|Twitter|Snapchat/i.test(ua);
+    if (isInApp) {
+      document.getElementById('inappBanner').classList.add('visible');
+    }
+  })();
+
+  function $(id) { return document.getElementById(id); }
+
+  function descarregarGPX() {
+    var a = document.createElement('a');
+    a.href = 'caminhadaADP.gpx';
+    a.download = 'caminhadaADP.gpx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  function atualizarContador() {
+    var diff = DATA_EVENTO.getTime() - Date.now();
+    if (diff <= 0) { clearInterval(countdownTimer); return; }
+    var s = Math.floor(diff / 1000);
+    $('countDias').innerText = Math.floor(s / 86400);
+    $('countHoras').innerText = String(Math.floor((s % 86400) / 3600)).padStart(2, '0');
+    $('countMinutos').innerText = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+    $('countSegundos').innerText = String(s % 60).padStart(2, '0');
+  }
+
+  function validarTelefone(n) { return /^(9[1236])[0-9]{7}$/.test(String(n).replace(/\D/g, '')); }
+
+  function calcularIdade(data) {
+    if (!data) return null;
+    var nasc = new Date(data + 'T00:00:00');
+    var idade = DATA_EVENTO.getFullYear() - nasc.getFullYear();
+    var m = DATA_EVENTO.getMonth() - nasc.getMonth();
+    if (m < 0 || (m === 0 && DATA_EVENTO.getDate() < nasc.getDate())) idade--;
+    return idade;
+  }
+
+  function valorPorTipo(tipo, data) {
+    if (!tipo) return 0;
+    if (tipo === 'Caminhada - 3€' || tipo === 'Caminhada + almoço - 3€') return 3;
+    if (tipo === 'Caminhada + almoço para Sócios - 13€') return 13;
+    if (tipo === 'Caminhada + almoço para Não Sócios - 15€') return 15;
+    return 0;
+  }
+
+  function temAlmoco(tipo) { return tipo && tipo !== 'Caminhada - 3€'; }
+
+  function opcoesTipo(data) {
+    var idade = calcularIdade(data);
+    if (idade !== null && idade <= 10) return ['Caminhada - 3€', 'Caminhada + almoço - 3€'];
+    return ['Caminhada - 3€', 'Caminhada + almoço para Sócios - 13€', 'Caminhada + almoço para Não Sócios - 15€'];
+  }
+
+  function opcoesBebida(data) {
+    var idade = calcularIdade(data);
+    if (idade !== null && idade <= 10) return ['Sumo', 'Água'];
+    return ['Cerveja', 'Vinho Tinto', 'Vinho Branco', 'Sumo', 'Água'];
+  }
+
+  function preencherSelect(sel, opcoes, valorAtual) {
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Selecionar</option>';
+    opcoes.forEach(function (o) {
+      var opt = document.createElement('option');
+      opt.value = opt.textContent = o;
+      sel.appendChild(opt);
+    });
+    if (opcoes.indexOf(valorAtual) > -1) sel.value = valorAtual;
+  }
+
+  function atualizarMenuPrincipal() {
+    var tipo = $('tipoInscricao').value;
+    var mP = $('menuPrincipal'), sM = $('semMenuPrincipal');
+    var comida = $('comida'), bebida = $('bebida');
+    if (tipo === 'Caminhada - 3€') {
+      mP.classList.add('hidden'); sM.classList.remove('hidden');
+      comida.required = false; bebida.required = false;
+      comida.value = ''; bebida.value = '';
+    } else {
+      mP.classList.remove('hidden'); sM.classList.add('hidden');
+      comida.required = true; bebida.required = true;
+    }
+  }
+
+  function atualizarMenuAcomp(i) {
+    var tipo = $('acomp_tipo_' + i).value;
+    var mP = $('acomp_menu_' + i), sM = $('acomp_sem_menu_' + i);
+    var comida = $('acomp_comida_' + i), bebida = $('acomp_bebida_' + i);
+    if (tipo === 'Caminhada - 3€') {
+      mP.classList.add('hidden'); sM.classList.remove('hidden');
+      comida.required = false; bebida.required = false;
+      comida.value = ''; bebida.value = '';
+    } else {
+      mP.classList.remove('hidden'); sM.classList.add('hidden');
+      comida.required = true; bebida.required = true;
+    }
+  }
+
+  function atualizarPrincipalPorData() {
+    var data = $('dataNascimento').value;
+    preencherSelect($('tipoInscricao'), opcoesTipo(data), $('tipoInscricao').value);
+    preencherSelect($('bebida'), opcoesBebida(data), $('bebida').value);
+    atualizarMenuPrincipal();
+    calcularTotal();
+  }
+
+  function atualizarAcompPorData(i) {
+    var data = $('acomp_data_' + i).value;
+    preencherSelect($('acomp_tipo_' + i), opcoesTipo(data), $('acomp_tipo_' + i).value);
+    preencherSelect($('acomp_bebida_' + i), opcoesBebida(data), $('acomp_bebida_' + i).value);
+    atualizarMenuAcomp(i);
+    calcularTotal();
+  }
+
+  function gerarAcompanhantes() {
+    var total = parseInt($('numeroAcompanhantes').value, 10);
+    var container = $('acompanhantesContainer');
+    container.innerHTML = '';
+    for (var i = 1; i <= total; i++) {
+      var card = document.createElement('div');
+      card.className = 'companion-card';
+      card.innerHTML =
+        '<div class="companion-title">Acompanhante ' + i + '</div>' +
+        '<label>Nome completo</label><input id="acomp_nome_' + i + '" type="text" required>' +
+        '<div class="grid">' +
+          '<div><label>Data de nascimento</label><input id="acomp_data_' + i + '" type="date" required max="' + hoje + '"></div>' +
+          '<div><label>Tipo de inscrição</label><select id="acomp_tipo_' + i + '" required>' +
+            '<option value="">Selecionar</option>' +
+            '<option value="Caminhada - 3€">Caminhada - 3€</option>' +
+            '<option value="Caminhada + almoço para Sócios - 13€">Caminhada + almoço para Sócios - 13€</option>' +
+            '<option value="Caminhada + almoço para Não Sócios - 15€">Caminhada + almoço para Não Sócios - 15€</option>' +
+          '</select></div>' +
+        '</div>' +
+        '<div id="acomp_menu_' + i + '">' +
+          '<div class="grid">' +
+            '<div><label>Comida</label><select id="acomp_comida_' + i + '"><option value="">Selecionar</option><option>Sardinhas</option><option>Carne</option></select></div>' +
+            '<div><label>Bebida</label><select id="acomp_bebida_' + i + '"><option value="">Selecionar</option><option>Cerveja</option><option>Vinho Tinto</option><option>Vinho Branco</option><option>Sumo</option><option>Água</option></select></div>' +
+          '</div>' +
+        '</div>' +
+        '<div id="acomp_sem_menu_' + i + '" class="disabled-card hidden">Para a opção <strong>Caminhada - 3€</strong>, não é necessário selecionar comida nem bebida.</div>';
+      container.appendChild(card);
+      (function (idx) {
+        $('acomp_data_' + idx).addEventListener('change', function () { atualizarAcompPorData(idx); });
+        $('acomp_tipo_' + idx).addEventListener('change', function () { atualizarMenuAcomp(idx); calcularTotal(); });
+      })(i);
+    }
+    calcularTotal();
+  }
+
+  function calcularTotal() {
+    var total = valorPorTipo($('tipoInscricao').value, $('dataNascimento').value);
+    var n = parseInt($('numeroAcompanhantes').value, 10);
+    for (var i = 1; i <= n; i++) {
+      total += valorPorTipo($('acomp_tipo_' + i) ? $('acomp_tipo_' + i).value : '', $('acomp_data_' + i) ? $('acomp_data_' + i).value : '');
+    }
+    $('valorTotal').innerText = total + '€';
+    return total;
+  }
+
+  function calcularContadores() {
+    var c = { totalPessoas: 0, caminhada: 0, socios: 0, naoSocios: 0, criancas: 0 };
+    function processar(tipo, data) {
+      if (!tipo || !data) return;
+      c.totalPessoas++;
+      var idade = calcularIdade(data);
+      if (idade !== null && idade <= 10) c.criancas++;
+      if (tipo === 'Caminhada - 3€' || tipo === 'Caminhada + almoço - 3€') c.caminhada++;
+      else if (tipo === 'Caminhada + almoço para Sócios - 13€') c.socios++;
+      else if (tipo === 'Caminhada + almoço para Não Sócios - 15€') c.naoSocios++;
+    }
+    processar($('tipoInscricao').value, $('dataNascimento').value);
+    var n = parseInt($('numeroAcompanhantes').value, 10);
+    for (var i = 1; i <= n; i++) {
+      processar($('acomp_tipo_' + i) ? $('acomp_tipo_' + i).value : '', $('acomp_data_' + i) ? $('acomp_data_' + i).value : '');
+    }
+    return c;
+  }
+
+  function validarCriancaComAdulto() {
+    var partic = [{ data: $('dataNascimento').value }];
+    var n = parseInt($('numeroAcompanhantes').value, 10);
+    for (var i = 1; i <= n; i++) partic.push({ data: $('acomp_data_' + i) ? $('acomp_data_' + i).value : '' });
+    var temCrianca = partic.some(function (p) { var id = calcularIdade(p.data); return id !== null && id <= 10; });
+    var temAdulto = partic.some(function (p) { var id = calcularIdade(p.data); return id !== null && id >= 18; });
+    if (temCrianca && !temAdulto) {
+      alert('A inscrição inclui uma criança até aos 10 anos. É necessário pelo menos um adulto na mesma inscrição.');
+      return false;
+    }
+    return true;
+  }
+
+  function selecionarPagamento() {
+    var metodo = $('metodoPagamento').value;
+    var panel = $('paymentPanel'), presencial = $('presencialAlert'), comp = $('comprovativo'), help = $('uploadHelp');
+    panel.style.display = 'none'; presencial.style.display = 'none';
+    $('mbwayRow').style.display = 'flex'; $('ibanRow').style.display = 'flex';
+    if (metodo === 'Online - MB WAY') {
+      panel.style.display = 'block'; $('ibanRow').style.display = 'none';
+      comp.required = true; help.innerText = 'Anexe o comprovativo MB WAY.';
+    } else if (metodo === 'Online - IBAN') {
+      panel.style.display = 'block'; $('mbwayRow').style.display = 'none';
+      comp.required = true; help.innerText = 'Anexe o comprovativo da transferência IBAN.';
+    } else if (metodo === 'Presencial no Centro') {
+      presencial.style.display = 'block'; comp.required = false; comp.value = '';
+      help.innerText = 'Não é necessário anexar comprovativo para inscrição presencial.';
+    } else {
+      comp.required = false; help.innerText = 'Para pagamentos online, anexe o comprovativo.';
+    }
+  }
+
+  function copiarTexto(texto, feedbackId) {
+    var fn = function () {
+      var el = $(feedbackId);
+      if (el) { el.classList.add('show'); setTimeout(function () { el.classList.remove('show'); }, 1500); }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(fn);
+    } else {
+      var t = document.createElement('textarea'); t.value = texto;
+      document.body.appendChild(t); t.select(); document.execCommand('copy');
+      document.body.removeChild(t); fn();
+    }
+  }
+
+  function lerComprovativo() {
+    return new Promise(function (resolve, reject) {
+      var input = $('comprovativo');
+      var f = input.files && input.files.length ? input.files[0] : null;
+      if (!f) { resolve(null); return; }
+      if (f.size > 8 * 1024 * 1024) { reject(new Error('O comprovativo não pode ter mais de 8MB.')); return; }
+      var r = new FileReader();
+      r.onload = function () { resolve({ nome: f.name, mimeType: f.type || 'application/octet-stream', base64: r.result.split(',')[1] }); };
+      r.onerror = function () { reject(new Error('Não foi possível ler o ficheiro.')); };
+      r.readAsDataURL(f);
+    });
+  }
+
+  function recolherDados() {
+    var acomps = [];
+    var n = parseInt($('numeroAcompanhantes').value, 10);
+    for (var i = 1; i <= n; i++) {
+      var tipo = $('acomp_tipo_' + i).value, data = $('acomp_data_' + i).value;
+      acomps.push({
+        nome: $('acomp_nome_' + i).value, dataNascimento: data, idade: calcularIdade(data),
+        tipoInscricao: tipo, comida: temAlmoco(tipo) ? $('acomp_comida_' + i).value : 'Não aplicável',
+        bebida: temAlmoco(tipo) ? $('acomp_bebida_' + i).value : 'Não aplicável', valor: valorPorTipo(tipo, data)
+      });
+    }
+    var tipoPrincipal = $('tipoInscricao').value, dataPrincipal = $('dataNascimento').value;
+    return {
+      nome: $('nome').value, telefone: $('telefone').value, email: $('email').value,
+      dataNascimento: dataPrincipal, idade: calcularIdade(dataPrincipal),
+      tipoInscricao: tipoPrincipal,
+      comida: temAlmoco(tipoPrincipal) ? $('comida').value : 'Não aplicável',
+      bebida: temAlmoco(tipoPrincipal) ? $('bebida').value : 'Não aplicável',
+      acompanhantes: acomps, metodoPagamento: $('metodoPagamento').value,
+      comprovativoFicheiro: null, valorTotal: calcularTotal(), contadores: calcularContadores()
+    };
+  }
+
+  function resumoHtml(dados) {
+    var h = '<strong>Nome:</strong> ' + dados.nome + '<br>' +
+      '<strong>Contacto:</strong> ' + dados.telefone + '<br>' +
+      '<strong>Email:</strong> ' + (dados.email || 'Não indicado') + '<br>' +
+      '<strong>Nascimento:</strong> ' + dados.dataNascimento + ' (' + dados.idade + ' anos)<br>' +
+      '<strong>Inscrição:</strong> ' + dados.tipoInscricao + '<br>' +
+      '<strong>Comida:</strong> ' + dados.comida + '<br>' +
+      '<strong>Bebida:</strong> ' + dados.bebida + '<br>' +
+      '<strong>Pagamento:</strong> ' + dados.metodoPagamento + '<br>' +
+      '<strong>Total:</strong> ' + dados.valorTotal + '€<hr>' +
+      '<strong>Total inscritos:</strong> ' + dados.contadores.totalPessoas + '<br>' +
+      '<strong>Caminhada:</strong> ' + dados.contadores.caminhada + '<br>' +
+      '<strong>Sócios:</strong> ' + dados.contadores.socios + '<br>' +
+      '<strong>Não Sócios:</strong> ' + dados.contadores.naoSocios + '<br>' +
+      '<strong>Crianças (≤10 anos):</strong> ' + dados.contadores.criancas;
+    if (dados.acompanhantes.length > 0) {
+      h += '<hr><strong>Acompanhantes:</strong><br>';
+      dados.acompanhantes.forEach(function (a, idx) {
+        h += '<br><strong>' + (idx + 1) + '.</strong> ' + a.nome + ' | ' + a.dataNascimento + ' (' + a.idade + ' anos) | ' + a.tipoInscricao + ' | ' + a.comida + ' | ' + a.bebida + ' | ' + a.valor + '€<br>';
+      });
+    }
+    return h;
+  }
+
+  function mostrarModal(dados) {
+    var presencial = dados.metodoPagamento === 'Presencial no Centro';
+    $('modalIcon').className = 'success-icon' + (presencial ? ' pending' : '');
+    $('successSvg').className = presencial ? 'hidden' : '';
+    $('pendingSvg').className = presencial ? '' : 'hidden';
+    $('modalTitle').innerText = presencial ? 'Inscrição pendente de pagamento' : 'Inscrição efetuada com sucesso';
+    $('modalText').innerText = presencial
+      ? 'A sua pré-inscrição foi registada. Efetue o pagamento no Centro até 13 de junho de 2026.'
+      : 'A sua inscrição foi registada e será validada após confirmação do pagamento.';
+    $('modalSummary').innerHTML = resumoHtml(dados);
+    $('modalBackdrop').style.display = 'flex';
+  }
+
+  function submeterParaAppsScript(dados) {
+    // Envia via fetch para o Google Apps Script como doPost
+    var payload = JSON.stringify(dados);
+    return fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: payload
+    }).then(function (resp) {
+      if (!resp.ok) throw new Error('Erro HTTP ' + resp.status);
+      return resp.json();
+    }).then(function (json) {
+      if (json && json.sucesso === false) throw new Error(json.mensagem || 'Erro desconhecido');
+      return json;
+    });
+  }
+
+  function init() {
+    $('dataNascimento').max = hoje;
+    $('btnDownloadGpx').addEventListener('click', descarregarGPX);
+    $('dataNascimento').addEventListener('change', atualizarPrincipalPorData);
+    $('tipoInscricao').addEventListener('change', function () { atualizarMenuPrincipal(); calcularTotal(); });
+    $('numeroAcompanhantes').addEventListener('change', gerarAcompanhantes);
+    $('metodoPagamento').addEventListener('change', selecionarPagamento);
+    $('formInscricao').addEventListener('change', function (e) {
+      var id = e.target && e.target.id ? e.target.id : '';
+      if (id === 'dataNascimento') { atualizarPrincipalPorData(); return; }
+      if (id.indexOf('acomp_data_') === 0) { atualizarAcompPorData(id.replace('acomp_data_', '')); return; }
+      if (id === 'tipoInscricao' || id.indexOf('acomp_tipo_') === 0) calcularTotal();
+    });
+
+    document.querySelectorAll('[data-copy]').forEach(function (btn) {
+      btn.addEventListener('click', function () { copiarTexto(btn.getAttribute('data-copy'), btn.getAttribute('data-feedback')); });
+    });
+
+    $('closeModal').addEventListener('click', function () { $('modalBackdrop').style.display = 'none'; });
+    $('telefone').addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').slice(0, 9); });
+
+    $('formInscricao').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!validarTelefone($('telefone').value)) { alert('Introduza um contacto telefónico válido.'); $('telefone').focus(); return; }
+      if (!validarCriancaComAdulto()) return;
+
+      var btn = $('btnSubmit');
+      var dados = recolherDados();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      $('loadingBackdrop').style.display = 'flex';
+      btn.disabled = true;
+      btn.innerText = 'A preparar...';
+
+      lerComprovativo().then(function (ficheiro) {
+        dados.comprovativoFicheiro = ficheiro;
+        btn.innerText = 'A submeter...';
+        return submeterParaAppsScript(dados);
+      }).then(function () {
+        $('loadingBackdrop').style.display = 'none';
+        mostrarModal(dados);
+        $('formInscricao').reset();
+        $('acompanhantesContainer').innerHTML = '';
+        atualizarPrincipalPorData();
+        selecionarPagamento();
+        calcularTotal();
+        btn.disabled = false;
+        btn.innerText = 'Submeter inscrição';
+      }).catch(function (erro) {
+        $('loadingBackdrop').style.display = 'none';
+        alert('Erro ao submeter inscrição: ' + (erro.message || erro));
+        btn.disabled = false;
+        btn.innerText = 'Submeter inscrição';
+      });
+    });
+
+    atualizarPrincipalPorData();
+    selecionarPagamento();
+    calcularTotal();
+    atualizarContador();
+    countdownTimer = setInterval(atualizarContador, 1000);
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
